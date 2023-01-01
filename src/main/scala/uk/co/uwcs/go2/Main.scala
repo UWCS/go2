@@ -18,19 +18,25 @@ object Main extends IOApp:
   val home = HttpRoutes.of[IO] { case GET -> Root => Ok("Welcome to go2!") }
 
   // for comprehension to compose the resources that build our server
-  def createServer(env: Map[String, String]) =
+  val server =
     for {
       env <- Resource.eval(Env[IO].entries.map(_.toMap))
 
       // will throw exceptions on startup if keys missing
-      session <- Session.pooled[IO](
-        host = env.get("POSTGRES_HOST").get,
-        port = env.get("POSTGRES_PORT").get.toInt,
-        user = env.get("POSTGRES_USER").get,
-        database = env.get("POSTGRES_DB").get,
-        password = Some(env.get("POSTGRES_PASSWORD").get),
-        max = 8
-      )
+      // slightly messy error handling in this functional context but ehhhhh
+      session <-
+        try
+          Session.pooled[IO](
+            host = env.get("POSTGRES_HOST").get,
+            port = env.get("POSTGRES_PORT").get.toInt,
+            user = env.get("POSTGRES_USER").get,
+            database = env.get("POSTGRES_DB").get,
+            password = Some(env.get("POSTGRES_PASSWORD").get),
+            max = 8
+          )
+        catch
+          case e: java.util.NoSuchElementException =>
+            throw java.util.NoSuchElementException("Environment variables for Postgres connection not defined")
 
       // compose our service from our home route and the redirect service routes
       // turn routes into an app using orNotFound, then wrap in logger middleware
@@ -49,6 +55,6 @@ object Main extends IOApp:
     } yield server
 
   override def run(args: List[String]): IO[ExitCode] =
-    createServer(sys.env)
+    server
       .use(_ => IO.never)
       .as(ExitCode.Success)
