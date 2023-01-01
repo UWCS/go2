@@ -7,7 +7,7 @@ import org.http4s.ember.server._
 import org.http4s.server.Router
 import org.http4s.dsl.io._
 import cats.implicits._
-import org.http4s.server.middleware.Logger
+import org.http4s.server.middleware._
 import cats.syntax.all._
 import org.http4s._
 import skunk._
@@ -21,7 +21,7 @@ object Main extends IOApp:
   // for comprehension to compose the effects that build our server
   val server = for {
     session <- Session.pooled[IO](
-      host = "hopper.uwcs.co.uk",
+      host = "localhost",
       port = 5432,
       user = "uwcs_go",
       database = "uwcs_go",
