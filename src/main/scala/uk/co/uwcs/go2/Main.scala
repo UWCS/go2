@@ -11,22 +11,21 @@ import org.http4s.server.middleware._
 import cats.syntax.all._
 import org.http4s._
 import skunk._
-import skunk.implicits._
-import skunk.codec.all._
 import natchez.Trace.Implicits.noop
 
 object Main extends IOApp:
   val home = HttpRoutes.of[IO] { case GET -> Root => Ok("Welcome to go2!") }
 
   // for comprehension to compose the effects that build our server
-  val server = for {
+  def createServer(env: Map[String, String]) = for {
+
     session <- Session.pooled[IO](
-      host = "localhost",
-      port = 5432,
-      user = "uwcs_go",
-      database = "uwcs_go",
-      password = Some("banana"),
-      max = 6
+      host = env.get("POSTGRES_HOST").get,
+      port = env.get("POSTGRES_PORT").get.toInt,
+      user = env.get("POSTGRES_USER").get,
+      database = env.get("POSTGRES_DB").get,
+      password = Some(env.get("POSTGRES_PASSWORD").get),
+      max = 8
     )
 
     // compose our service from our home route and the redirect service routes
@@ -46,6 +45,6 @@ object Main extends IOApp:
   } yield server
 
   override def run(args: List[String]): IO[ExitCode] =
-    server
+    createServer(sys.env)
       .use(_ => IO.never)
       .as(ExitCode.Success)
