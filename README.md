@@ -1,6 +1,6 @@
 # go2
 
-`go2` is a simpler URL shortener and redirection service for creating short links. It's a successor to [UWCS-go](https://github.com/UWCS/uwcs-go), designed to be more streamlined.
+`go2` is a simpler URL shortener and redirection service for creating short links. It's a successor to [uwcs-go](https://github.com/UWCS/uwcs-go), designed to be more streamlined.
 
 ## Overview
 
