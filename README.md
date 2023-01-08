@@ -14,7 +14,7 @@
 
 sbt is used as the build tool. Use `sbt run` to build and run the server.
 
-`go2` will attempt to read from the environment variables listed in `Main.scala` to establish a database connection. Be sure to configure your development environment with those variables before running.
+`go2` will attempt to read from the environment variables listed in `Main.scala` to establish a database connection. Be sure to configure your development environment with those variables before running, which can be done [using a `.env` file](https://github.com/Philippus/sbt-dotenv)
 
 ## Docker
 
