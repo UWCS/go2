@@ -4,6 +4,7 @@ val SkunkVersion      = "0.3.2"
 val CatsEffectVersion = "3.4.3"
 
 lazy val root = (project in file("."))
+  .enablePlugins(SbtTwirl)
   .settings(
     organization               := "uk.co.uwcs",
     name                       := "go2",
@@ -13,6 +14,7 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       "org.http4s"    %% "http4s-ember-server" % Http4sVersion,
       "org.http4s"    %% "http4s-dsl"          % Http4sVersion,
+      "org.http4s"     % "http4s-twirl"        % Http4sVersion,
       "ch.qos.logback" % "logback-classic"     % LogbackVersion,
       "org.tpolecat"  %% "skunk-core"          % SkunkVersion,
       "org.typelevel" %% "cats-effect"         % CatsEffectVersion
