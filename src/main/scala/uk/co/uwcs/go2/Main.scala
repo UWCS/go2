@@ -15,8 +15,6 @@ import skunk._
 import natchez.Trace.Implicits.noop
 
 object Main extends IOApp:
-  val home = HttpRoutes.of[IO] { case GET -> Root => Ok("Welcome to go2!") }
-
   // for comprehension to compose the resources that build our server
   val server =
     for {
@@ -41,7 +39,7 @@ object Main extends IOApp:
       // compose our service from our home route and the redirect service routes
       // turn routes into an app using orNotFound, then wrap in logger middleware
       service = Logger.httpApp(true, true)(
-        (home <+> RedirectService(session).routes).orNotFound
+        (AdminService(session).routes <+> RedirectService(session).routes).orNotFound
       )
 
       // build the server
