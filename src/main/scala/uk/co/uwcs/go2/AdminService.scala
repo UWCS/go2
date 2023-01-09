@@ -37,7 +37,7 @@ class AdminService(val session: Resource[IO, Session[IO]]):
 
   private def getAllRedirects() =
     val getAllQ: skunk.Query[Void, Redirect] =
-      sql"SELECT source, sink, usages, last_used, created FROM redirects"
+      sql"SELECT source, sink, usages, last_used, created FROM redirects ORDER BY last_used desc NULLS LAST"
         .query(varchar(50) ~ varchar(1024) ~ int4 ~ timestamptz.opt ~ timestamptz.opt)
         .gmap[Redirect]
 
