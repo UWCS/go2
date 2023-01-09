@@ -32,12 +32,16 @@
           <tr>
             <th>Source</th>
             <th>Usages</th>
+            <th>Created</th>
+            <th>Last Used</th>
             <th>Sink</th>
           </tr>
           @for(r <- redirects) {
           <tr>
             <td>@r.source</td>
             <td>@r.usages</td>
+            <td>@r.created</td>
+            <td>@r.used</td>
             <td>@r.sink</td>
           </tr>
           }
