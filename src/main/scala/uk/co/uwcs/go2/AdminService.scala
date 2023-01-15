@@ -24,7 +24,11 @@ class AdminService(val session: Resource[IO, Session[IO]]):
 
   val routes = HttpRoutes
     .of[IO] {
-      case GET -> Root => getAllRedirects().map(html.panel.apply).flatMap(Ok(_))
+      case GET -> Root => getAllRedirects().map(html.panel.apply).flatMap(Ok(_)) // the homepage
+
+      case request @ GET -> Root / "static" / file =>
+        StaticFile.fromResource(request.pathInfo.toString, Some(request)).getOrElseF(NotFound()) // static files from classpath
+
       case req @ POST -> Root =>
         req.decode { (f: UrlForm) =>
           val src = f.values("source").headOption
@@ -32,7 +36,7 @@ class AdminService(val session: Resource[IO, Session[IO]]):
           (src, snk) match
             case (Some(src), Some(snk)) => addNewRedirect(src, snk) >> SeeOther(Location(uri"/"))
             case _                      => BadRequest(s"Invalid data: " + f.values.mkString("\n"))
-        }
+        } // POST to root url adds a new db row
     }
 
   private def getAllRedirects() =
