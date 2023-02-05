@@ -28,7 +28,7 @@ class RedirectService(val session: Resource[IO, Session[IO]]):
           case Some(Right(sink)) =>
             s.prepare(countC).use(_.execute(source))     // bump count
               >> s.prepare(dateC).use(_.execute(source)) // bump last used date
-              >> MovedPermanently(Location(sink))        // 301 to redirect if found
+              >> Found(Location(sink))                   // 301 to redirect if found
         }
       }
 
