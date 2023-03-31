@@ -22,13 +22,13 @@ class RedirectService(val session: Resource[IO, Session[IO]]):
   private def redirect(source: String): IO[Response[IO]] =
     session
       .use { s => // use the database session
-        s.prepare(sinkQ).use(_.option(source)).map(_.map(Uri.fromString)).flatMap {
+        s.prepare(sinkQ).flatMap(_.option(source)).map(_.map(Uri.fromString)).flatMap {
           case None          => NotFound()            // 404 if not found
           case Some(Left(_)) => InternalServerError() // 500 if found but couldn't parse uri (unlikely)
           case Some(Right(sink)) =>
-            s.prepare(countC).use(_.execute(source))     // bump count
-              >> s.prepare(dateC).use(_.execute(source)) // bump last used date
-              >> Found(Location(sink))                   // 301 to redirect if found
+            s.prepare(countC).flatMap(_.execute(source))     // bump count
+              >> s.prepare(dateC).flatMap(_.execute(source)) // bump last used date
+              >> Found(Location(sink))                       // 301 to redirect if found
         }
       }
 

@@ -51,4 +51,4 @@ class AdminService(val session: Resource[IO, Session[IO]]):
     val addNewC: Command[String ~ String] =
       sql"INSERT INTO redirects (source, sink) VALUES ($varchar, $varchar)".command
 
-    session.use(_.prepare(addNewC).use(_.execute(source, sink))).void
+    session.use(_.prepare(addNewC).flatMap(_.execute(source, sink))).void
