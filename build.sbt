@@ -17,8 +17,8 @@ lazy val root = (project in file("."))
       "org.http4s"    %% "http4s-twirl"        % "0.24.0-M1",
       "ch.qos.logback" % "logback-classic"     % LogbackVersion,
       "org.tpolecat"  %% "skunk-core"          % "0.5.1",
-      "org.typelevel" %% "cats-effect"         % "3.4.3"
-      // "org.pac4j"     %% "http4s-pac4j"        % "4.1.0",
-      // "org.pac4j"      % "pac4j-oidc"          % "5.7.0"
+      "org.typelevel" %% "cats-effect"         % "3.4.3",
+      "org.pac4j"     %% "http4s-pac4j"        % "4.1.0",
+      "org.pac4j"      % "pac4j-oidc"          % "5.7.0"
     )
   )

@@ -13,33 +13,32 @@ import cats.syntax.all._
 import org.http4s._
 import skunk._
 import natchez.Trace.Implicits.noop
+import uk.co.uwcs.go2.auth._
 
 object Main extends IOApp:
+  // build the configs that we need
+  val goConfig   = GoConfig.apply
+  val authConfig = AuthConfigFactory().build(goConfig.rootUrl)
+
   // for comprehension to compose the resources that build our server
   val server =
     for {
-      env <- Resource.eval(Env[IO].entries.map(_.toMap))
-
-      // will throw exceptions on startup if keys missing
-      // slightly messy error handling in this functional context but ehhhhh
-      session <-
-        try
-          Session.pooled[IO](
-            host = env.get("POSTGRES_HOST").get,
-            port = env.get("POSTGRES_PORT").get.toInt,
-            user = env.get("POSTGRES_USER").get,
-            database = env.get("POSTGRES_DB").get,
-            password = Some(env.get("POSTGRES_PASSWORD").get),
-            max = 8
-          )
-        catch
-          case e: java.util.NoSuchElementException =>
-            throw java.util.NoSuchElementException("Environment variables for Postgres connection not defined")
+      session <- Session
+        .pooled[IO](
+          goConfig.db.host,
+          goConfig.db.port,
+          goConfig.db.user,
+          goConfig.db.database,
+          password = Some(goConfig.db.password),
+          max = 8
+        )
 
       // compose our service from our home route and the redirect service routes
       // turn routes into an app using orNotFound, then wrap in logger middleware
       service = Logger.httpApp(true, true)(
-        (AdminService(session).routes <+> RedirectService(session).routes).orNotFound
+        (LoginCallbackService(authConfig).routes <+> AdminService(session).routes <+> RedirectService(
+          session
+        ).routes).orNotFound
       )
 
       // build the server
