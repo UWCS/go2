@@ -1,5 +1,5 @@
 val Http4sVersion     = "0.23.18"
-val LogbackVersion    = "1.2.10"
+val LogbackVersion    = "1.4.6"
 val SkunkVersion      = "0.3.2"
 val CatsEffectVersion = "3.4.3"
 

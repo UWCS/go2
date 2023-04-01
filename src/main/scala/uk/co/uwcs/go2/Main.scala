@@ -14,11 +14,12 @@ import org.http4s._
 import skunk._
 import natchez.Trace.Implicits.noop
 import uk.co.uwcs.go2.auth._
+import org.pac4j.http4s.SecurityFilterMiddleware
 
 object Main extends IOApp:
   // build the configs that we need
   val goConfig   = GoConfig.apply
-  val authConfig = AuthConfigFactory().build(goConfig.rootUrl)
+  val authConfig = AuthConfigFactory().build(goConfig.rootUrl, goConfig.oidcSecret)
 
   // for comprehension to compose the resources that build our server
   val server =
@@ -36,9 +37,11 @@ object Main extends IOApp:
       // compose our service from our home route and the redirect service routes
       // turn routes into an app using orNotFound, then wrap in logger middleware
       service = Logger.httpApp(true, true)(
-        (LoginCallbackService(authConfig).routes <+> AdminService(session).routes <+> RedirectService(
-          session
-        ).routes).orNotFound
+        (LoginCallbackService(authConfig).routes
+          <+> AdminService(session).routes
+          <+> RedirectService(
+            session
+          ).routes).orNotFound
       )
 
       // build the server

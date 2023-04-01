@@ -14,7 +14,7 @@ class AuthConfigFactory extends ConfigFactory {
     val rootUrl    = parameters(0).asInstanceOf[String]
     val oidcSecret = parameters(1).asInstanceOf[String]
     val clients =
-      new Clients(rootUrl, keycloakClient(oidcSecret)) // this won't work on a dev machine
+      new Clients(rootUrl + "/callback", keycloakClient(oidcSecret)) // this won't work on a dev machine
 
     val config = new Config(clients)
     config.setHttpActionAdapter(new DefaultHttpActionAdapter[IO]) // <-- Render a nicer page
@@ -22,10 +22,12 @@ class AuthConfigFactory extends ConfigFactory {
     config
   }
 
-  def keycloakClient(oidcSecret: String) = {
+  def keycloakClient(oidcSecret: String): KeycloakOidcClient = {
     val config = new KeycloakOidcConfiguration
     config.setBaseUri("https://auth.uwcs.co.uk")
     config.setRealm("uwcs")
+    config.setSecret(oidcSecret)
+    config.setClientId("go2")
     val client = new KeycloakOidcClient(config)
     client
   }
