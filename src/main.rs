@@ -6,6 +6,7 @@ mod config;
 mod db;
 mod routes;
 
+/// Struct containing application state that may be needed by any handler
 #[derive(Debug, Clone)]
 pub struct AppState {
     pool: sqlx::PgPool,
