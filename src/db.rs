@@ -30,3 +30,24 @@ pub async fn get_all(conn: &PgPool, n: usize) -> Result<Vec<Redirect>, sqlx::Err
     sqlx::query_as!(Redirect, "SELECT source, sink, usages, last_used, created FROM redirects ORDER BY last_used desc NULLS LAST")
         .fetch_all(conn).await
 }
+
+///Increments the count and updates the date for the given go link
+pub async fn bump_count(source: &str, conn: &PgPool) -> Result<(), sqlx::Error> {
+    let r1 = sqlx::query!(
+        "UPDATE redirects SET usages = usages + 1 WHERE source=$1",
+        source
+    )
+    .execute(conn);
+
+    let r2 = sqlx::query!(
+        "UPDATE redirects SET usages = usages + 1 WHERE source=$1",
+        source
+    )
+    .execute(conn);
+
+    tokio::try_join!(r1, r2)?;
+
+    tracing::info!("Updated usage info for link {source}");
+
+    Ok(())
+}

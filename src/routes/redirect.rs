@@ -1,4 +1,4 @@
-use std::{dbg, format};
+use std::format;
 
 use axum::extract::Path;
 use axum::extract::State;
@@ -15,6 +15,11 @@ pub async fn do_redirect(
     match db::get_sink(&source, &pool).await {
         Ok(Some(sink)) => {
             tracing::debug!("Got sink for {source}, sending redirect to {sink}");
+
+            if let Err(e) = db::bump_count(&source, &pool).await {
+                tracing::error!("Failed to increment redirect count for {source}: {e}");
+            }
+
             (
                 StatusCode::FOUND,
                 [(header::LOCATION, "https://google.com")],
