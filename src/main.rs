@@ -4,6 +4,7 @@ use std::sync::Arc;
 mod config;
 mod db;
 mod routes;
+pub use db::Redirect;
 
 /// Struct containing application state that may be needed by any handler
 #[derive(Debug, Clone)]
@@ -19,6 +20,10 @@ async fn main() -> anyhow::Result<()> {
     let config = config::Config::get_from_env()?;
     let port = config.port;
 
+    //I've always wanted to do this
+    //TODO: make this good (rewrite auth service to be an impl on a struct with this as a field)
+    let api_secret: &'static str = Box::leak(config.api_secret.clone().into_boxed_str());
+
     tracing::debug!("Connecting to database...");
     let pool = sqlx::PgPool::connect(&config.db_url).await?;
     tracing::info!("Database connected!");
@@ -30,7 +35,7 @@ async fn main() -> anyhow::Result<()> {
 
     let app = Router::new()
         .route("/:source", get(routes::do_redirect))
-        .nest("/api", routes::api_routes(&config.api_secret))
+        .nest("/api", routes::api_routes(api_secret))
         .with_state(state)
         .fallback(|| async { (StatusCode::NOT_FOUND, "Not Found") });
 

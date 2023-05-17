@@ -21,6 +21,8 @@ pub async fn do_redirect(
             //update metrics, redirect anyway if we can't but log the error
             if let Err(e) = db::bump_count(&source, &pool).await {
                 tracing::error!("Failed to increment redirect count for {source}: {e}");
+            } else {
+                tracing::info!("Update usage metrics for {source}");
             }
 
             //response is (status code, headers, body)

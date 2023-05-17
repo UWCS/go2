@@ -1,14 +1,24 @@
+use chrono::serde::ts_seconds_option;
+use serde::{Deserialize, Serialize};
 use sqlx::{
     types::chrono::{DateTime, Utc},
     FromRow, PgPool,
 };
 
-#[derive(Debug, FromRow)]
+///Represents a go link, a mapping from source -> sink with some metadata
+#[derive(Debug, FromRow, Serialize, Deserialize)]
 pub struct Redirect {
     pub source: String,
     pub sink: String,
+    ///number of times this link has been used
     pub usages: i32,
+
+    ///Last time this link was used. Serialized as seconds since epoch
+    #[serde(with = "ts_seconds_option")]
     pub last_used: Option<DateTime<Utc>>,
+
+    ///When this link was created. Serialized as seconds since epoch
+    #[serde(with = "ts_seconds_option")]
     pub created: Option<DateTime<Utc>>,
 }
 
@@ -40,9 +50,6 @@ pub async fn bump_count(source: &str, conn: &PgPool) -> Result<(), sqlx::Error> 
         source
     )
     .execute(conn)
-    .await?;
-
-    tracing::info!("Updated usage info for link {source}");
-
-    Ok(())
+    .await
+    .map(|_| ())
 }

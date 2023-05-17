@@ -1,20 +1,43 @@
-use axum::response::Result;
+use std::todo;
+
+use crate::AppState;
+
 use axum::{
+    extract::{Query, State},
     http::{Request, StatusCode},
     middleware::{from_fn, Next},
-    response::IntoResponse,
+    response::{IntoResponse, Result},
     routing::{get, post},
-    Router,
+    Json, Router,
 };
 
-async fn add_redirect() {}
-async fn change_sink() {}
-async fn get_redirects() {}
+use crate::db;
 
-pub fn api_routes(tok: &str) -> Router<crate::AppState> {
+#[tracing::instrument]
+pub async fn add_redirect(
+    State(AppState { pool, config: _ }): State<AppState>,
+) -> impl IntoResponse {
+    todo!()
+}
+
+pub async fn get_redirects(
+    State(AppState { pool, config: _ }): State<AppState>,
+    Query(q): Query<Option<usize>>,
+) -> Result<Json<Vec<crate::Redirect>>> {
+    match q {
+        Some(n) => db::get_recent(&pool, n as i64).await,
+        None => db::get_all(&pool).await,
+    }
+    .map(axum::Json)
+    .map_err(|e| {
+        tracing::error!("Failed to handle API request: {e}");
+        StatusCode::INTERNAL_SERVER_ERROR.into()
+    })
+}
+
+pub fn api_routes(tok: &'static str) -> Router<AppState> {
     Router::new()
         .route("/new", post(add_redirect))
-        .route("/update/:source", post(change_sink))
         .route("/list", get(get_redirects))
         .layer(from_fn(|r, n| auth(tok, r, n)))
 }
