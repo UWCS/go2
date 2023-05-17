@@ -12,8 +12,8 @@ impl Config {
     pub fn get_from_env() -> Result<Config> {
         //load dotenv file if it exists
         match dotenv() {
-            Ok(_) => tracing::info!("No .env file found, nothing to load"),
-            Err(_) => tracing::info!("Loaded config from .env file"),
+            Err(_) => tracing::info!("No .env file found, nothing to load"),
+            Ok(_) => tracing::info!("Loaded config from .env file"),
         }
 
         let db_url = dotenvy::var("DATABASE_URL")
