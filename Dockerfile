@@ -12,14 +12,14 @@ RUN cargo build --release
 RUN rm src/*.rs
 
 # copy source code in
-COPY ./dcspkg-server/src ./src
+COPY ./go2/src ./src
 
 # build our code
-RUN rm ./target/release/deps/dcspkg*
+RUN rm ./target/release/deps/go2*
 RUN cargo build --release
 
 # new base, slimmer, no toolchains
 FROM debian:bullseye-slim
-COPY --from=builder /dcspkg-server/target/release/dcspkg_server .
+COPY --from=builder /go2/target/release/go2 .
 
-CMD [ "./dcspkg_server" ]
+CMD [ "./go2" ]
