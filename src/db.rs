@@ -33,12 +33,13 @@ pub async fn get_all(conn: &PgPool) -> Result<Vec<Redirect>, sqlx::Error> {
 
 ///Increments the count and updates the date for the given go link
 pub async fn bump_count(source: &str, conn: &PgPool) -> Result<(), sqlx::Error> {
-    //update usage
+    //update usage info
     sqlx::query!(
         "UPDATE redirects SET usages = usages + 1, last_used=NOW() WHERE source=$1",
         source
     )
-    .execute(conn);
+    .execute(conn)
+    .await?;
 
     tracing::info!("Updated usage info for link {source}");
 
