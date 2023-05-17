@@ -30,7 +30,7 @@ async fn main() -> anyhow::Result<()> {
 
     let app = Router::new()
         .route("/:source", get(routes::do_redirect))
-        .nest("/api", routes::api_routes())
+        .nest("/api", routes::api_routes(&config.api_secret))
         .with_state(state)
         .fallback(|| async { (StatusCode::NOT_FOUND, "Not Found") });
 
