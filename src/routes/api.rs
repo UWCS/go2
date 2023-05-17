@@ -1,4 +1,4 @@
-use std::todo;
+use std::collections::HashMap;
 
 use crate::AppState;
 
@@ -10,29 +10,50 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
+use sqlx::{error::DatabaseError, postgres::PgDatabaseError, Database};
 
 use crate::db;
 
-#[tracing::instrument]
-pub async fn add_redirect(
-    State(AppState { pool, config: _ }): State<AppState>,
-) -> impl IntoResponse {
-    todo!()
+#[derive(Debug, serde::Deserialize)]
+struct GoPair {
+    source: String,
+    sink: String,
 }
 
-pub async fn get_redirects(
+#[tracing::instrument]
+async fn add_redirect(
     State(AppState { pool, config: _ }): State<AppState>,
-    Query(q): Query<Option<usize>>,
-) -> Result<Json<Vec<crate::Redirect>>> {
-    match q {
-        Some(n) => db::get_recent(&pool, n as i64).await,
-        None => db::get_all(&pool).await,
+    Json(GoPair { source, sink }): Json<GoPair>,
+) -> Result<StatusCode> {
+    let r = db::add_new(&source, &sink, &pool).await;
+    match r {
+        Ok(_) => Ok(StatusCode::CREATED),
+        Err(sqlx::Error::Database(e)) if e.code() == Some("23505".into()) => {
+            tracing::warn!("API request attempted to insert duplicate go link {source} -> {sink}");
+            Ok(StatusCode::CONFLICT)
+        }
+        Err(e) => {
+            tracing::error!("Failed to handle API request: {e:?}");
+            Err(StatusCode::INTERNAL_SERVER_ERROR.into())
+        }
     }
-    .map(axum::Json)
-    .map_err(|e| {
-        tracing::error!("Failed to handle API request: {e}");
-        StatusCode::INTERNAL_SERVER_ERROR.into()
-    })
+}
+
+#[tracing::instrument]
+async fn get_redirects(
+    State(AppState { pool, config: _ }): State<AppState>,
+    Query(q): Query<HashMap<String, i64>>,
+) -> Result<Json<Vec<crate::Redirect>>> {
+    match match q.get("n") {
+        Some(n) => db::get_recent(&pool, *n).await,
+        None => db::get_all(&pool).await,
+    } {
+        Ok(r) => Ok(Json(r)),
+        Err(e) => {
+            tracing::error!("Failed to handle API request: {e}");
+            Err(StatusCode::INTERNAL_SERVER_ERROR.into())
+        }
+    }
 }
 
 pub fn api_routes(tok: &'static str) -> Router<AppState> {

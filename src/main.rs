@@ -37,7 +37,8 @@ async fn main() -> anyhow::Result<()> {
         .route("/:source", get(routes::do_redirect))
         .nest("/api", routes::api_routes(api_secret))
         .with_state(state)
-        .fallback(|| async { (StatusCode::NOT_FOUND, "Not Found") });
+        .fallback(|| async { (StatusCode::NOT_FOUND, "Not Found") })
+        .layer(tower_http::catch_panic::CatchPanicLayer::new());
 
     tracing::info!("Starting server...");
     axum::Server::bind(&([0, 0, 0, 0], port).into())
