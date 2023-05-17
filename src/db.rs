@@ -1,6 +1,7 @@
-use sqlx::types::chrono::{DateTime, Utc};
-use sqlx::FromRow;
-use sqlx::PgPool;
+use sqlx::{
+    types::chrono::{DateTime, Utc},
+    FromRow, PgPool,
+};
 
 #[derive(Debug, FromRow)]
 pub struct Redirect {

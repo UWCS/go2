@@ -1,9 +1,9 @@
+use axum::{
+    extract::{Path, State},
+    http::{header, StatusCode},
+    response::IntoResponse,
+};
 use std::format;
-
-use axum::extract::Path;
-use axum::extract::State;
-use axum::http::StatusCode;
-use axum::{http::header, response::IntoResponse};
 
 use crate::{db, AppState};
 

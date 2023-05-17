@@ -1,6 +1,5 @@
+use axum::{http::StatusCode, routing::get, Router};
 use std::sync::Arc;
-
-use axum::{routing::get, Router};
 
 mod config;
 mod db;
@@ -31,7 +30,9 @@ async fn main() -> anyhow::Result<()> {
 
     let app = Router::new()
         .route("/:source", get(routes::do_redirect))
-        .with_state(state);
+        .nest("/api", routes::api_routes())
+        .with_state(state)
+        .fallback(|| async { (StatusCode::NOT_FOUND, "Not Found") });
 
     tracing::info!("Starting server...");
     axum::Server::bind(&([0, 0, 0, 0], port).into())
