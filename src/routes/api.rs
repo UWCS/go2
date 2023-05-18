@@ -10,7 +10,6 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use sqlx::{error::DatabaseError, postgres::PgDatabaseError, Database};
 
 use crate::db;
 

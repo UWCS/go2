@@ -10,6 +10,7 @@ pub use db::Redirect;
 #[derive(Debug, Clone)]
 pub struct AppState {
     pool: sqlx::PgPool,
+    #[allow(dead_code)]
     config: std::sync::Arc<config::Config>,
 }
 
