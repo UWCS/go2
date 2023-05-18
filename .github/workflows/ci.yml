@@ -20,7 +20,6 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: ci-build
-          save-if: false
       - name: Run clippy
         run: cargo clippy --verbose --workspace
       - name: Check formatting
