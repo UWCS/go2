@@ -25,7 +25,7 @@ async fn main() -> anyhow::Result<()> {
     //TODO: make this good (rewrite auth service to be an impl on a struct with this as a field)
     let api_secret: &'static str = Box::leak(config.api_secret.clone().into_boxed_str());
 
-    tracing::debug!("Connecting to database...");
+    tracing::debug!("Connecting to database at {}..", &config.db_url);
     let pool = sqlx::PgPool::connect(&config.db_url).await?;
     sqlx::migrate!().run(&pool).await?;
     tracing::info!("Database connected, migrations ran!");
