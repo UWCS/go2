@@ -26,7 +26,8 @@ async fn main() -> anyhow::Result<()> {
 
     tracing::debug!("Connecting to database...");
     let pool = sqlx::PgPool::connect(&config.db_url).await?;
-    tracing::info!("Database connected!");
+    sqlx::migrate!().run(&pool).await?;
+    tracing::info!("Database connected, migrations ran!");
 
     let state = AppState {
         pool,
