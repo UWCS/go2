@@ -1,7 +1,7 @@
 FROM rust:1 as builder
 
 # create empty projects
-RUN USER=root cargo new --bin go2
+RUN cargo new --bin go2
 WORKDIR /go2
 
 # copy package manifest in 
@@ -12,7 +12,7 @@ RUN cargo build --release
 RUN rm src/*.rs
 
 # copy source code (and sqlx stuff) in
-COPY ./go2/src sqlx-data.json ./src
+COPY ./src sqlx-data.json ./src
 
 # build our code
 RUN rm ./target/release/deps/go2*
