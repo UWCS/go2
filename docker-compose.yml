@@ -5,10 +5,22 @@ services:
     container_name: go2
     build: .
     ports:
-      - "8125:8080"
+      - "8080:8080"
     environment:
-      POSTGRES_HOST: localhost
-      POSTGRES_PORT: 5432
-      POSTGRES_DB: uwcs_go
-      POSTGRES_USER: uwcs_go
+      DATABASE_URL: postgres://go2:bananas@db/go2
+      PORT: 8080
+      API_SECRET: super_secret
+    depends_on:
+      - db
+
+  db:
+    image: postgres:14.7
+    environment:
+      POSTGRES_USER: go2
+      POSTGRES_DB: go2
       POSTGRES_PASSWORD: bananas
+      POSTGRES_PORT: "5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+volumes:
+  postgres_data:

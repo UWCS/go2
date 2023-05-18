@@ -2,27 +2,36 @@ name: CI
 
 on:
   push:
-  
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-Dwarnings"
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
-    name: Build and Test
+    name: Lint
+    if: ${{ success() }}
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: '18'
-        cache: 'sbt'
-    - run: sbt -v +test
+      - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: ci-build
+      - name: Run clippy
+        run: cargo clippy --verbose --workspace
+      - name: Check formatting
+        run: cargo fmt --check --verbose
 
-
-  docker_publish:
+  build-and-push-image:
+    name: Build and Push Docker Image
     runs-on: ubuntu-latest
-    name: Publish built container
+    permissions:
+      packages: write
     needs:
-      - build
+      - lint
     if: success() && github.ref_name == 'main' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v3
@@ -34,15 +43,24 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get short commit hash
-        id: hash
-        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: Get Docker Metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: | # tag with commit hash and with 'latest'
+            type=sha 
+            type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build and push Docker image
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and Push Docker image
         uses: docker/build-push-action@v3
         with:
           context: .
           push: true
-          tags: |
-            "ghcr.io/uwcs/go2:latest"
-            "ghcr.io/uwcs/go2:${{ steps.hash.outputs.sha_short }}"
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

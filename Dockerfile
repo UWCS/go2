@@ -1,16 +1,28 @@
-# jdk eclipse temurin 19.0.1
-# sbt 1.8.0
-# scala 3.2.1
-FROM sbtscala/scala-sbt:eclipse-temurin-19.0.1_10_1.8.0_3.2.1 AS builder
+FROM rust:1 as builder
 
-COPY . /app
+# create empty projects
+RUN cargo new --bin go2
+WORKDIR /go2
 
-WORKDIR /app
+# copy package manifest in 
+COPY Cargo.toml Cargo.lock /go2
 
-RUN sbt assembly
+# build to cache deps
+RUN cargo build --release
+RUN rm src/*.rs
 
-FROM eclipse-temurin:19.0.1_10-jre AS runtime
+# copy source code (and sqlx stuff) in
+COPY ./src ./src
+COPY sqlx-data.json .
+COPY ./migrations ./migrations
 
-COPY --from=builder /app/target/scala-3.2.1/go2.jar .
+# build our code
+RUN rm ./target/release/deps/go2*
+RUN ls /go2
+RUN cargo build --release
 
-CMD java -jar go2.jar
+# new base, slimmer, no toolchains
+FROM debian:bullseye-slim
+COPY --from=builder /go2/target/release/go2 .
+
+CMD [ "./go2" ]
