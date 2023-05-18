@@ -12,10 +12,13 @@ RUN cargo build --release
 RUN rm src/*.rs
 
 # copy source code (and sqlx stuff) in
-COPY ./src sqlx-data.json ./src
+COPY ./src ./src
+COPY sqlx-data.json .
+COPY ./migrations ./migrations
 
 # build our code
 RUN rm ./target/release/deps/go2*
+RUN ls /go2
 RUN cargo build --release
 
 # new base, slimmer, no toolchains
