@@ -55,39 +55,7 @@
     },
     "query": "INSERT INTO redirects_new (source, sink) VALUES ($1, $2)"
   },
-  "8452c138a98240ebe10882841d32e4369dceae5415ceca5b33b057532e218fd8": {
-    "describe": {
-      "columns": [
-        {
-          "name": "sink",
-          "ordinal": 0,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false
-      ],
-      "parameters": {
-        "Left": [
-          "Text"
-        ]
-      }
-    },
-    "query": "SELECT sink FROM redirects_new WHERE source = $1"
-  },
-  "94a95173b0b2084c618ac9f9d059e4e236bd237f6470227dd7f8d93af004bff7": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Text"
-        ]
-      }
-    },
-    "query": "UPDATE redirects_new SET usages = usages + 1, last_used=NOW() WHERE source=$1"
-  },
-  "9f8a12310114f3b6e7e9f8bfac6fd23e2a881ca0a6b25ec5251e2ab35ad1fc0d": {
+  "5cc195c46be2c4f08d2de520350805e8d634333446adb7811075c6827241d511": {
     "describe": {
       "columns": [
         {
@@ -125,12 +93,43 @@
       ],
       "parameters": {
         "Left": [
+          "Int8",
           "Int8"
         ]
       }
     },
-    "query": "SELECT source, sink, usages, last_used, created FROM redirects_new ORDER BY last_used desc NULLS LAST LIMIT $1"
+    "query": "SELECT source, sink, usages, last_used, created FROM redirects_new ORDER BY last_used desc NULLS LAST LIMIT $1 OFFSET $2"
+  },
+  "8452c138a98240ebe10882841d32e4369dceae5415ceca5b33b057532e218fd8": {
+    "describe": {
+      "columns": [
+        {
+          "name": "sink",
+          "ordinal": 0,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT sink FROM redirects_new WHERE source = $1"
+  },
+  "94a95173b0b2084c618ac9f9d059e4e236bd237f6470227dd7f8d93af004bff7": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "UPDATE redirects_new SET usages = usages + 1, last_used=NOW() WHERE source=$1"
   }
-
-
 }
