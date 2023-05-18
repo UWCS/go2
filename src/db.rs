@@ -31,8 +31,12 @@ pub async fn get_sink(source: &str, conn: &PgPool) -> Result<Option<String>, sql
 }
 
 /// Gets the n most recently used redirects.
-pub async fn get_recent(conn: &PgPool, n: i64) -> Result<Vec<Redirect>, sqlx::Error> {
-    sqlx::query_as!(Redirect,"SELECT source, sink, usages, last_used, created FROM redirects_new ORDER BY last_used desc NULLS LAST LIMIT $1", n)
+pub async fn get_page(
+    conn: &PgPool,
+    limit: i64,
+    offset: i64,
+) -> Result<Vec<Redirect>, sqlx::Error> {
+    sqlx::query_as!(Redirect,"SELECT source, sink, usages, last_used, created FROM redirects_new ORDER BY last_used desc NULLS LAST LIMIT $1 OFFSET $2", limit, offset)
         .fetch_all(conn).await
 }
 

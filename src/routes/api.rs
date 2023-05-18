@@ -38,13 +38,21 @@ async fn add_redirect(
     }
 }
 
+#[derive(Debug, serde::Deserialize)]
+struct PaginateParams {
+    limit: u32,
+    offset: u32,
+}
+
 #[tracing::instrument]
 async fn get_redirects(
     State(AppState { pool, config: _ }): State<AppState>,
-    Query(q): Query<HashMap<String, i64>>,
+    Query(q): Query<Option<PaginateParams>>,
 ) -> Result<Json<Vec<crate::Redirect>>> {
-    match match q.get("n") {
-        Some(n) => db::get_recent(&pool, *n).await,
+    match match q {
+        Some(PaginateParams { limit, offset }) => {
+            db::get_page(&pool, limit.into(), offset.into()).await
+        }
         None => db::get_all(&pool).await,
     } {
         Ok(r) => Ok(Json(r)),
