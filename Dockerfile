@@ -18,7 +18,6 @@ COPY ./migrations ./migrations
 
 # build our code
 RUN rm ./target/release/deps/go2*
-RUN ls /go2
 RUN cargo build --release
 
 # new base, slimmer, no toolchains
