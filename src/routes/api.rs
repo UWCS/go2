@@ -1,12 +1,15 @@
+use std::collections::HashMap;
+
 use crate::AppState;
 
 use axum::{
     extract::{Query, State},
+    headers::{authorization::Bearer, Authorization},
     http::{Request, StatusCode},
     middleware::{from_fn, Next},
     response::{IntoResponse, Result},
     routing::{get, post},
-    Json, Router,
+    Json, RequestPartsExt, Router, TypedHeader,
 };
 
 use crate::db;
@@ -36,22 +39,18 @@ async fn add_redirect(
     }
 }
 
-#[derive(Debug, serde::Deserialize)]
-struct PaginateParams {
-    limit: u32,
-    offset: u32,
-}
-
 #[tracing::instrument]
 async fn get_redirects(
     State(AppState { pool, config: _ }): State<AppState>,
-    Query(q): Query<Option<PaginateParams>>,
+    Query(q): Query<HashMap<String, u32>>,
 ) -> Result<Json<Vec<crate::Redirect>>> {
-    match match q {
-        Some(PaginateParams { limit, offset }) => {
-            db::get_page(&pool, limit.into(), offset.into()).await
+    tracing::info!("{q:?}");
+    match match (q.get("limit"), q.get("offset")) {
+        (Some(limit), Some(offset)) => {
+            db::get_page(&pool, i64::from(*limit), i64::from(*offset)).await
         }
-        None => db::get_all(&pool).await,
+        (None, None) if q.is_empty() => db::get_all(&pool).await,
+        _ => return Err(StatusCode::BAD_REQUEST.into()),
     } {
         Ok(r) => Ok(Json(r)),
         Err(e) => {
@@ -69,15 +68,16 @@ pub fn api_routes(tok: &'static str) -> Router<AppState> {
 }
 
 pub async fn auth<B>(tok: &str, req: Request<B>, next: Next<B>) -> Result<impl IntoResponse> {
-    let provided_tok = req
-        .headers()
-        .get("Authorization")
-        .ok_or("No authorization token provided")
-        .and_then(|h| h.to_str().map_err(|_| "Invalid header"))
-        .and_then(|h| h.strip_prefix("Bearer: ").ok_or("No bearer token"))?;
+    let (mut parts, body) = req.into_parts();
 
-    //something about async closures means i can't make this one obnoxiously large expression
-    if provided_tok == tok {
+    let auth: TypedHeader<Authorization<Bearer>> = parts
+        .extract()
+        .await
+        .map_err(|_| (StatusCode::UNAUTHORIZED, "No auth token provided"))?;
+
+    if auth.token() == tok {
+        // reconstruct the request
+        let req = Request::from_parts(parts, body);
         Ok(next.run(req).await)
     } else {
         Err((StatusCode::UNAUTHORIZED, "Invalid auth token").into())
