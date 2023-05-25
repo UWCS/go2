@@ -15,7 +15,6 @@ RUN rm src/*.rs
 COPY ./src ./src
 COPY sqlx-data.json .
 COPY ./migrations ./migrations
-COPY ./static ./static
 
 # build our code
 RUN rm ./target/release/deps/go2*
@@ -24,5 +23,7 @@ RUN cargo build --release
 # new base, slimmer, no toolchains
 FROM debian:bullseye-slim
 COPY --from=builder /go2/target/release/go2 .
+COPY ./static ./static
+
 
 CMD [ "./go2" ]
