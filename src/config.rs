@@ -20,7 +20,7 @@ impl Config {
             .context("No DB URL provided, cannot connect to database")?;
 
         //port defaults to 8080 if not provided
-        let port = dotenvy::var("port")
+        let port = dotenvy::var("PORT")
             .map_err(Into::<anyhow::Error>::into) //error trait bullshit
             .and_then(|p| p.parse().map_err(Into::into))
             .unwrap_or_else(|_| {
