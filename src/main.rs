@@ -1,5 +1,10 @@
-use axum::{http::StatusCode, routing::get, Router};
+use axum::{
+    http::StatusCode,
+    routing::{get, get_service},
+    Router,
+};
 use std::sync::Arc;
+use tower_http::services::{ServeDir, ServeFile};
 
 mod config;
 mod db;
@@ -38,6 +43,8 @@ async fn main() -> anyhow::Result<()> {
     let app = Router::new()
         .route("/:source", get(routes::do_redirect))
         .nest("/api", routes::api_routes(api_secret))
+        .route_service("/", get_service(ServeFile::new("./static/home.html")))
+        .nest_service("/static", get_service(ServeDir::new("./static/")))
         .with_state(state)
         .fallback(|| async { (StatusCode::NOT_FOUND, "Not Found") })
         .layer(tower_http::catch_panic::CatchPanicLayer::new());

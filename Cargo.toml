@@ -21,6 +21,6 @@ sqlx = { version = "0.6.3", features = [
 ] }
 tokio = { version = "1.28.1", features = ["macros", "rt-multi-thread"] }
 tower = "0.4.13"
-tower-http = { version = "0.4.0", features = ["catch-panic"] }
+tower-http = { version = "0.4.0", features = ["fs", "catch-panic"] }
 tracing = "0.1.37"
 tracing-subscriber = "0.3.17"
