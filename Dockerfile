@@ -11,10 +11,11 @@ COPY Cargo.toml Cargo.lock /go2
 RUN cargo build --release
 RUN rm src/*.rs
 
-# copy source code (and sqlx stuff) in
+# copy source code (and sqlx stuff) (and static files) in
 COPY ./src ./src
 COPY sqlx-data.json .
 COPY ./migrations ./migrations
+COPY ./static ./static
 
 # build our code
 RUN rm ./target/release/deps/go2*
