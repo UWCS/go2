@@ -25,8 +25,12 @@ API access is controlled by a token which must be provided in an authorisation h
 
 ## `sqlx` & working with the database
 
-sqlx is far too clever, and it's query macros connect to the database **at compile time** to verify that your SQL is correct. It reads the `DATABASE_URL` from `.env` to do this, so make sure this is set or you will get compile errors. The easiest way to do this is to develop using docker, as the compose stack will spin up a database for you. 
+sqlx is far too clever, and it's query macros connect to the database **at compile time** to verify that your SQL is correct. It reads the `DATABASE_URL` from `.env` to do this, so make sure this is set or you will get compile errors. The easiest way to do this is to develop using docker, as the compose stack will spin up a database for you.
 
-Alternatively, the `sqlx-data.json` file contains info generated from the database against which queries can be checked. If updating the database schema or queries, ths must be regenerated. Install the sqlx cli and run `cargo sqlx prepare` to do this. 
+Alternatively, the `sqlx-data.json` file contains info generated from the database against which queries can be checked. If updating the database schema or queries, ths must be regenerated. Install the sqlx cli and run `cargo sqlx prepare` to do this.
 
 Migrations in `/migrations` are embedded in the binary and run on startup. New migrations will need to be added if you make any changes that affect the database schema. Make sure to regeneate the `sqlx-data.json` too.
+
+## Tailwind
+
+Tailwind is used for styling the HTML pages that provide the web interface. If committing changes to any HTML or CSS files, first rebuild the `output.css` [using tailwind cli](https://tailwindcss.com/blog/standalone-cli).
