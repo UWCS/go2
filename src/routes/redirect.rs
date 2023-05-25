@@ -28,7 +28,7 @@ pub async fn do_redirect(
             //response is (status code, headers, body)
             (
                 StatusCode::FOUND,
-                [(header::LOCATION, "https://google.com")],
+                [(header::LOCATION, &sink)],
                 format!("Redirecting to {}", sink).into_response(),
             )
                 .into_response()
