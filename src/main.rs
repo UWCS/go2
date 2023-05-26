@@ -3,7 +3,7 @@ use axum::{
     routing::{get, get_service},
     Router,
 };
-use axum_sessions::{async_session::MemoryStore, SessionLayer};
+use axum_sessions::{async_session::MemoryStore, SameSite, SessionLayer};
 use rand::Rng;
 use tower_http::services::{ServeDir, ServeFile};
 mod config;
@@ -47,10 +47,10 @@ async fn main() -> anyhow::Result<()> {
 
     //create session store and layer
     //memory store is fine because persisting sessions is not important for this use
-    let store = MemoryStore::new();
     let mut secret = [0u8; 128];
     rand::thread_rng().fill(&mut secret[..]);
-    let session_layer = SessionLayer::new(store, &secret);
+    let session_layer =
+        SessionLayer::new(MemoryStore::new(), &secret).with_same_site_policy(SameSite::Lax);
 
     let app = Router::new()
         .route("/:source", get(routes::do_redirect))

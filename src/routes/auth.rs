@@ -12,7 +12,8 @@ use openidconnect::{
     core::{CoreAuthenticationFlow, CoreClient, CoreProviderMetadata, CoreResponseType},
     reqwest::async_http_client,
     AccessTokenHash, AuthenticationFlow, AuthorizationCode, ClientId, ClientSecret, CsrfToken,
-    IssuerUrl, Nonce, PkceCodeChallenge, RedirectUrl, Scope, TokenResponse,
+    IssuerUrl, Nonce, OAuth2TokenResponse, PkceCodeChallenge, PkceCodeVerifier, RedirectUrl, Scope,
+    TokenResponse,
 };
 
 async fn login(
@@ -30,7 +31,7 @@ async fn login(
     let (pkce_challenge, pkce_verifier) = PkceCodeChallenge::new_random_sha256();
 
     // Generate the full authorization URL.
-    let (auth_url, _csrf_token, _nonce) = client
+    let (auth_url, _csrf_token, nonce) = client
         .authorize_url(
             CoreAuthenticationFlow::AuthorizationCode,
             CsrfToken::new_random,
@@ -38,6 +39,7 @@ async fn login(
         )
         // Set the desired scopes.
         .add_scope(Scope::new("email".to_string()))
+        .add_scope(Scope::new("openid".to_string()))
         .add_scope(Scope::new("profile".to_string()))
         .set_pkce_challenge(pkce_challenge)
         .url();
@@ -48,6 +50,11 @@ async fn login(
             tracing::error!("Failed to insert PKCE verifier into session: {e}");
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
+
+    session.insert("nonce", nonce).map_err(|e| {
+        tracing::error!("Failed to insert nonce into session: {e}");
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
 
     Ok(axum::response::Redirect::to(auth_url.as_str()).into_response())
 }
@@ -75,14 +82,23 @@ async fn callback(
     let client = state.oidc_client.unwrap();
 
     let pkce_verifier = session
-        .get("pkce_verifier")
+        .get::<PkceCodeVerifier>("pkce_verifier")
         .context("Failed to get PKCE verifier from session")
         .map_err(|e| {
             tracing::error!("Failed to get PKCE verifier from session: {e}");
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
+    let nonce = session
+        .get::<Nonce>("nonce")
+        .context("Failed to get nonce from session")
+        .map_err(|e| {
+            tracing::error!("Failed to get nonce from session: {e}");
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+
     session.remove("pkce_verifier");
+    session.remove("nonce");
 
     let token_response = client
         .exchange_code(AuthorizationCode::new(params.code))
@@ -95,11 +111,36 @@ async fn callback(
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
-    //verify token
+    // Extract the ID token claims after verifying its authenticity and nonce.
+    let id_token = token_response.id_token().unwrap();
+
+    let claims = id_token
+        .claims(&client.id_token_verifier(), &nonce)
+        .unwrap();
+
+    // Verify the access token hash to ensure that the access token hasn't been substituted for
+    // another user's.
+    if let Some(expected_access_token_hash) = claims.access_token_hash() {
+        let actual_access_token_hash = AccessTokenHash::from_token(
+            token_response.access_token(),
+            &id_token.signing_alg().unwrap(),
+        )
+        .unwrap();
+        if actual_access_token_hash != *expected_access_token_hash {
+            panic!()
+        }
+    }
     //insert username from token claim into session
     //if is exec, redirect to /app/panel, else redirect to /app/unauth
 
-    Ok((StatusCode::OK, "you have been redirected!").into_response())
+    Ok((
+        StatusCode::OK,
+        format!(
+            "Redirected! your name is {:?}",
+            claims.preferred_username().unwrap()
+        ),
+    )
+        .into_response())
 }
 
 #[tracing::instrument]
