@@ -6,6 +6,15 @@ pub struct Config {
     pub db_url: String,
     pub port: u16,
     pub api_secret: String,
+    pub auth_config: Option<AuthConfig>,
+}
+
+#[derive(Debug)]
+pub struct AuthConfig {
+    pub client_id: String,
+    pub client_secret: String,
+    pub oidc_url: String,
+    pub app_url: String,
 }
 
 impl Config {
@@ -38,10 +47,19 @@ impl Config {
             s
         });
 
+        let auth_config = match get_auth_config() {
+            Ok(conf) => Some(conf),
+            Err(e) => {
+                tracing::error!("{}, disabling OIDC auth", e);
+                None
+            }
+        };
+
         let c = Ok(Config {
             db_url,
             port,
             api_secret,
+            auth_config,
         });
 
         tracing::info!("Loaded config from environment!");
@@ -58,4 +76,18 @@ fn rand_string(len: usize) -> String {
         .take(len)
         .map(char::from)
         .collect()
+}
+
+fn get_auth_config() -> anyhow::Result<AuthConfig> {
+    let client_id = dotenvy::var("AUTH_CLIENT_ID").context("No client ID provided")?;
+    let client_secret = dotenvy::var("AUTH_CLIENT_SECRET").context("No client secret provided")?;
+    let oidc_url = dotenvy::var("AUTH_OIDC_URL").context("No OIDC URL provided")?;
+    let app_url = dotenvy::var("APP_URL").context("No application URL provided")?;
+
+    Ok(AuthConfig {
+        client_id,
+        client_secret,
+        oidc_url,
+        app_url,
+    })
 }

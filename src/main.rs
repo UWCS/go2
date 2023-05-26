@@ -3,9 +3,9 @@ use axum::{
     routing::{get, get_service},
     Router,
 };
-use std::sync::Arc;
+use axum_sessions::{async_session::MemoryStore, SessionLayer};
+use rand::Rng;
 use tower_http::services::{ServeDir, ServeFile};
-
 mod config;
 mod db;
 mod routes;
@@ -15,8 +15,7 @@ pub use db::Redirect;
 #[derive(Debug, Clone)]
 pub struct AppState {
     pool: sqlx::PgPool,
-    #[allow(dead_code)]
-    config: std::sync::Arc<config::Config>,
+    oidc_client: Option<openidconnect::core::CoreClient>,
 }
 
 #[tokio::main]
@@ -37,16 +36,32 @@ async fn main() -> anyhow::Result<()> {
 
     let state = AppState {
         pool,
-        config: Arc::new(config),
+        oidc_client: {
+            if let Some(auth_config) = config.auth_config {
+                Some(routes::oidc_client(auth_config).await?)
+            } else {
+                None
+            }
+        },
     };
+
+    //create session store and layer
+    //memory store is fine because persisting sessions is not important for this use
+    let store = MemoryStore::new();
+    let mut secret = [0u8; 128];
+    rand::thread_rng().fill(&mut secret[..]);
+    let session_layer = SessionLayer::new(store, &secret);
 
     let app = Router::new()
         .route("/:source", get(routes::do_redirect))
         .nest("/api", routes::api_routes(api_secret))
+        .nest("/auth", routes::auth_routes())
+        .nest("/app", routes::app_routes())
         .route_service("/", get_service(ServeFile::new("./static/home.html")))
         .nest_service("/static", get_service(ServeDir::new("./static/")))
         .with_state(state)
         .fallback(|| async { (StatusCode::NOT_FOUND, "Not Found") })
+        .layer(session_layer)
         .layer(tower_http::catch_panic::CatchPanicLayer::new());
 
     tracing::info!("Starting server...");

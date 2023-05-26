@@ -22,10 +22,10 @@ struct GoPair {
 
 #[tracing::instrument]
 async fn add_redirect(
-    State(AppState { pool, config: _ }): State<AppState>,
+    State(state): State<AppState>,
     Json(GoPair { source, sink }): Json<GoPair>,
 ) -> Result<StatusCode> {
-    let r = db::add_new(&source, &sink, &pool).await;
+    let r = db::add_new(&source, &sink, &state.pool).await;
     match r {
         Ok(_) => Ok(StatusCode::CREATED),
         Err(sqlx::Error::Database(e)) if e.code() == Some("23505".into()) => {
@@ -41,15 +41,15 @@ async fn add_redirect(
 
 #[tracing::instrument]
 async fn get_redirects(
-    State(AppState { pool, config: _ }): State<AppState>,
+    State(state): State<AppState>,
     Query(q): Query<HashMap<String, u32>>,
 ) -> Result<Json<Vec<crate::Redirect>>> {
     tracing::info!("{q:?}");
     match match (q.get("limit"), q.get("offset")) {
         (Some(limit), Some(offset)) => {
-            db::get_page(&pool, i64::from(*limit), i64::from(*offset)).await
+            db::get_page(&state.pool, i64::from(*limit), i64::from(*offset)).await
         }
-        (None, None) if q.is_empty() => db::get_all(&pool).await,
+        (None, None) if q.is_empty() => db::get_all(&state.pool).await,
         _ => return Err(StatusCode::BAD_REQUEST.into()),
     } {
         Ok(r) => Ok(Json(r)),

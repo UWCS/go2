@@ -9,17 +9,17 @@ use crate::{db, AppState};
 
 #[tracing::instrument]
 pub async fn do_redirect(
-    State(AppState { pool, config: _ }): State<AppState>,
+    State(state): State<AppState>,
     Path(source): Path<String>,
 ) -> impl IntoResponse {
     //try to get redirect URL from db
-    match db::get_sink(&source, &pool).await {
+    match db::get_sink(&source, &state.pool).await {
         Ok(Some(sink)) => {
             //if no error and we got a sink, redirect to it
             tracing::debug!("Got sink for {source}, sending redirect to {sink}");
 
             //update metrics, redirect anyway if we can't but log the error
-            if let Err(e) = db::bump_count(&source, &pool).await {
+            if let Err(e) = db::bump_count(&source, &state.pool).await {
                 tracing::error!("Failed to increment redirect count for {source}: {e}");
             } else {
                 tracing::info!("Update usage metrics for {source}");
