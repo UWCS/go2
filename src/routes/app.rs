@@ -1,5 +1,5 @@
 use axum::{
-    response::IntoResponse,
+    response::{IntoResponse, Redirect},
     routing::{get, post},
     Router,
 };
@@ -8,10 +8,9 @@ use axum_sessions::extractors::ReadableSession;
 use crate::AppState;
 
 async fn app_page(session: ReadableSession) -> impl IntoResponse {
-    if session.get::<bool>("signed_in").unwrap_or(false) {
-        "Shh, it's secret!"
-    } else {
-        "Nothing to see here."
+    match session.get::<String>("username") {
+        Some(name) => format!("Hello, {}!", name).into_response(),
+        None => Redirect::to("/auth/login").into_response(),
     }
 }
 

@@ -6,6 +6,7 @@ use axum::{
 use axum_sessions::{async_session::MemoryStore, SameSite, SessionLayer};
 use rand::Rng;
 use tower_http::services::{ServeDir, ServeFile};
+
 mod config;
 mod db;
 mod routes;
