@@ -10,7 +10,7 @@ use tower_http::services::ServeDir;
 mod config;
 mod db;
 mod routes;
-pub use db::Redirect;
+mod types;
 
 /// Struct containing application state that may be needed by any handler
 #[derive(Debug, Clone)]

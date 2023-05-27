@@ -2,6 +2,8 @@ use std::collections::HashMap;
 
 use crate::AppState;
 
+use crate::db;
+use crate::types::*;
 use axum::{
     extract::{Query, State},
     headers::{authorization::Bearer, Authorization},
@@ -11,14 +13,6 @@ use axum::{
     routing::{get, post},
     Json, RequestPartsExt, Router, TypedHeader,
 };
-
-use crate::db;
-
-#[derive(Debug, serde::Deserialize)]
-struct GoPair {
-    source: String,
-    sink: String,
-}
 
 #[tracing::instrument]
 async fn add_redirect(
@@ -43,7 +37,7 @@ async fn add_redirect(
 async fn get_redirects(
     State(state): State<AppState>,
     Query(q): Query<HashMap<String, u32>>,
-) -> Result<Json<Vec<crate::Redirect>>> {
+) -> Result<Json<Vec<Redirect>>> {
     tracing::info!("{q:?}");
     match match (q.get("limit"), q.get("offset")) {
         (Some(limit), Some(offset)) => {

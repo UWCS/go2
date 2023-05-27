@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./static/**/*.html"],
+  content: ["./static/**/*.html", "templates/**/*.html"],
   theme: {
     extend: {
       colors: {
@@ -8,4 +8,5 @@ module.exports = {
       },
     },
   },
+  plugins: [require("@tailwindcss/forms")],
 };
