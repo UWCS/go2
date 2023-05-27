@@ -5,7 +5,7 @@ use axum::{
 };
 use axum_sessions::{async_session::MemoryStore, SameSite, SessionLayer};
 use rand::Rng;
-use tower_http::services::{ServeDir, ServeFile};
+use tower_http::services::ServeDir;
 
 mod config;
 mod db;
@@ -55,10 +55,10 @@ async fn main() -> anyhow::Result<()> {
 
     let app = Router::new()
         .route("/:source", get(routes::do_redirect))
+        .route("/", get(routes::app::home))
         .nest("/api", routes::api_routes(api_secret))
         .nest("/auth", routes::auth_routes())
-        .nest("/app", routes::app_routes())
-        .route_service("/", get_service(ServeFile::new("./static/home.html")))
+        .nest("/app", routes::app::app_routes())
         .nest_service("/static", get_service(ServeDir::new("./static/")))
         .with_state(state)
         .fallback(|| async { (StatusCode::NOT_FOUND, "Not Found") })

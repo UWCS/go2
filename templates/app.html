@@ -1,0 +1,111 @@
+{% extends "base.html" %} {% block content %}
+  <h2>Add new go link</h2>
+  <form action="" method="POST" class="form flex flex-wrap mt-2">
+    <div class="w-64 h-16 form-sink">
+      <label class="inline-flex text-sm text-gray-700" for="source"
+        >Source:</label
+      >
+      <input
+        class="block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+        type="text"
+        name="source"
+        id="source"
+        required
+      />
+    </div>
+    <div class="w-64 h-16 form-source">
+      <label class="inline-flex text-sm text-gray-700" for="sink">Sink:</label>
+      <input
+        class="block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+        type="url"
+        name="sink"
+        id="sink"
+        required
+      />
+    </div>
+    <div class="w-16 h-8 form-submit">
+      <label class="inline-flex text-sm text-gray-700" for="submit"></label>
+      <button
+        class="block items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        type="submit"
+        value="Submit"
+      >
+        Submit
+      </button>
+    </div>
+  </form>
+</div>
+
+<div class="mx-auto max-w-7xl sm:px-6 lg:px-8 py-8">
+  <h2>Current go links</h2>
+  <div class="mt-4 flex flex-col">
+    <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+      <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+        <div
+          class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg"
+        >
+          <table class="min-w-full divide-y divide-gray-300" id="redirects">
+            <thead class="bg-gray-100">
+              <tr>
+                <th
+                  scope="col"
+                  class="py-3.5 pl-4 pr-3 text-left text-sm text-gray-900 sm:pl-6"
+                  >Source</th
+                >
+                <th
+                  scope="col"
+                  class="px-3 py-3.5 text-left text-sm text-gray-900"
+                  >Usages</th
+                >
+                <th
+                  scope="col"
+                  class="px-3 py-3.5 text-left text-sm text-gray-900"
+                  >Created</th
+                >
+                <th
+                  scope="col"
+                  class="px-3 py-3.5 text-left text-sm text-gray-900"
+                  >Last Used</th
+                >
+                <th
+                  scope="col"
+                  class="px-3 py-3.5 text-left text-sm text-gray-900"
+                  >Sink</th
+                >
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 bg-white">
+              {% for r in redirects %}
+              <tr>
+                <td
+                  class="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-900 sm:pl-6"
+                  >{{ r.source }}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+                  >{{ r.usages }}</td
+                >
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+                  >{% match r.created %} {% when Some with (val) %} {{
+                  val.format("%d/%m/%Y %H:%M") }} {% when None %} {% endmatch
+                  %}</td
+                >
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+                  >{% match r.created %} {% when Some with (val) %} {{
+                  val.format("%d/%m/%Y %H:%M") }} {% when None %} {% endmatch
+                  %}</td
+                >
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+                  >{{ r.sink }}</td
+                >
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block top_right %}
+<p class="text-gray-200"> Welcome, {{ username }}</p>
+{% endblock %}

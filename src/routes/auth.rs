@@ -1,3 +1,4 @@
+use super::handle_error;
 use crate::{config::AuthConfig, AppState};
 use anyhow::{anyhow, Context};
 use axum::{
@@ -138,7 +139,7 @@ async fn callback(
         .context("Failed to insert username into session store")
         .map_err(handle_error)?;
 
-    Ok(Redirect::to("/app").into_response())
+    Ok(Redirect::to("/app/panel").into_response())
 }
 
 #[tracing::instrument]
@@ -170,11 +171,4 @@ pub fn auth_routes() -> Router<AppState> {
     Router::new()
         .route("/login", get(login))
         .route("/callback", get(callback))
-}
-
-fn handle_error(e: anyhow::Error) -> (StatusCode, &'static str)
-where
-{
-    tracing::error!("Internal Server Error: {e:?}");
-    (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error")
 }
