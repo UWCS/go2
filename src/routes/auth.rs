@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use super::handle_error;
 use crate::{config::AuthConfig, AppState};
 use anyhow::{anyhow, Context};
@@ -133,9 +135,20 @@ async fn callback(
             handle_error(anyhow!("Access token hash did not match"));
         }
     }
+    let username = claims
+        .preferred_username()
+        .map(Deref::deref)
+        .unwrap_or_else(|| {
+            claims
+                .nickname()
+                .expect("Tried *real* hard but could not get the username from this OIDC provider")
+                .get(None)
+                .unwrap()
+            //this crate is so unbelievably awkward
+        });
     //insert username into session store
     session
-        .insert("username", claims.preferred_username().unwrap())
+        .insert("username", username)
         .context("Failed to insert username into session store")
         .map_err(handle_error)?;
 
