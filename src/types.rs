@@ -17,10 +17,19 @@ pub struct Redirect {
     ///When this link was created. Serialized as seconds since epoch
     #[serde(with = "ts_seconds_option")]
     pub created: Option<DateTime<Utc>>,
+
+    pub author: String,
 }
 
 #[derive(Debug, serde::Deserialize)]
 pub struct GoPair {
     pub source: String,
     pub sink: String,
+}
+
+#[derive(Debug, serde::Deserialize)]
+pub struct GoPairAuthor {
+    pub source: String,
+    pub sink: String,
+    pub author: String,
 }

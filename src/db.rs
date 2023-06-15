@@ -16,13 +16,13 @@ pub async fn get_page(
     limit: i64,
     offset: i64,
 ) -> Result<Vec<Redirect>, sqlx::Error> {
-    sqlx::query_as!(Redirect,"SELECT source, sink, usages, last_used, created FROM redirects_new ORDER BY last_used desc NULLS LAST LIMIT $1 OFFSET $2", limit, offset)
+    sqlx::query_as!(Redirect,"SELECT source, sink, usages, last_used, created, author FROM redirects_new ORDER BY last_used desc NULLS LAST LIMIT $1 OFFSET $2", limit, offset)
         .fetch_all(conn).await
 }
 
 /// Gets all redirects. Allocates a [`Vec`] for results so may cause a large allocation.
 pub async fn get_all(conn: &PgPool) -> Result<Vec<Redirect>, sqlx::Error> {
-    sqlx::query_as!(Redirect, "SELECT source, sink, usages, last_used, created FROM redirects_new ORDER BY last_used desc NULLS LAST")
+    sqlx::query_as!(Redirect, "SELECT source, sink, usages, last_used, created, author FROM redirects_new ORDER BY last_used desc NULLS LAST")
         .fetch_all(conn).await
 }
 
@@ -39,11 +39,17 @@ pub async fn bump_count(source: &str, conn: &PgPool) -> Result<(), sqlx::Error> 
 }
 
 ///adds a new go link to the database
-pub async fn add_new(source: &str, sink: &str, conn: &PgPool) -> Result<(), sqlx::Error> {
+pub async fn add_new(
+    source: &str,
+    sink: &str,
+    author: &str,
+    conn: &PgPool,
+) -> Result<(), sqlx::Error> {
     sqlx::query!(
-        "INSERT INTO redirects_new (source, sink) VALUES ($1, $2)",
+        "INSERT INTO redirects_new (source, sink, author) VALUES ($1, $2, $3)",
         source,
-        sink
+        sink,
+        author
     )
     .execute(conn)
     .await

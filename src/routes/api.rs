@@ -17,13 +17,17 @@ use axum::{
 #[tracing::instrument]
 async fn add_redirect(
     State(state): State<AppState>,
-    Json(GoPair { source, sink }): Json<GoPair>,
+    Json(new): Json<GoPairAuthor>,
 ) -> Result<StatusCode> {
-    let r = db::add_new(&source, &sink, &state.pool).await;
+    let r = db::add_new(&new.source, &new.sink, &new.author, &state.pool).await;
     match r {
         Ok(_) => Ok(StatusCode::CREATED),
         Err(sqlx::Error::Database(e)) if e.code() == Some("23505".into()) => {
-            tracing::warn!("API request attempted to insert duplicate go link {source} -> {sink}");
+            tracing::warn!(
+                "API request attempted to insert duplicate go link {} -> {}",
+                new.source,
+                new.sink
+            );
             Ok(StatusCode::CONFLICT)
         }
         Err(e) => {

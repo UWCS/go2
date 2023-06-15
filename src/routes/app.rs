@@ -49,14 +49,15 @@ async fn handle_form(
     session: ReadableSession,
     Form(f): Form<GoPair>,
 ) -> Result<impl IntoResponse> {
-    if session.get::<String>("username").is_none() {
+    let Some(username) = session.get::<String>("username") else { 
         return Err((
-            StatusCode::UNAUTHORIZED,
-            "You must be logged in to do that.",
-        )
-            .into());
-    }
-    db::add_new(&f.source, &f.sink, &s.pool)
+        StatusCode::UNAUTHORIZED,
+        "You must be logged in to do that.",
+    )
+        .into())
+    };
+
+    db::add_new(&f.source, &f.sink, &username, &s.pool)
         .await
         .context("Could not add new redirect to database")
         .map_err(handle_error)
