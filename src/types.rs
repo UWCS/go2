@@ -18,7 +18,7 @@ pub struct Redirect {
     #[serde(with = "ts_seconds_option")]
     pub created: Option<DateTime<Utc>>,
 
-    pub author: String,
+    pub author: Option<String>,
 }
 
 #[derive(Debug, serde::Deserialize)]

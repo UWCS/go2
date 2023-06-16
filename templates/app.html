@@ -71,6 +71,11 @@
                 <th
                   scope="col"
                   class="px-3 py-3.5 text-left text-sm text-gray-900"
+                  >Author</th
+                >
+                <th
+                  scope="col"
+                  class="px-3 py-3.5 text-left text-sm text-gray-900"
                   >Last Used</th
                 >
                 <th
@@ -94,6 +99,10 @@
                   >{% match r.created %} {% when Some with (val) %} {{
                   val.format("%d/%m/%Y %H:%M") }} {% when None %} {% endmatch
                   %}</td
+                >
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+                  >{% match r.author %} {% when Some with (val) %} {{ val }} {%
+                  when None %} {% endmatch %}</td
                 >
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
                   >{% match r.last_used %} {% when Some with (val) %} {{
