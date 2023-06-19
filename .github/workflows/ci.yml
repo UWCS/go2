@@ -13,6 +13,10 @@ env:
 jobs:
   install-rust:
     runs-on: ubuntu-latest
+
+  lint:
+    runs-on: ubuntu-latest
+    name: Lint
     steps:
       - uses: actions-rs/toolchain@v1
         with:
@@ -20,10 +24,6 @@ jobs:
           override: true
           components: rustfmt, clippy
 
-  lint:
-    runs-on: ubuntu-latest
-    name: Lint
-    steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
         with:
