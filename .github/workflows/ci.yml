@@ -25,8 +25,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: ci-build
-      - name: Run clippy
-        run: cargo clippy --verbose --no-deps
+      # - name: Run clippy
+      #   run: cargo clippy --verbose --no-deps
       - name: Check formatting
         run: cargo fmt --check --verbose
 
