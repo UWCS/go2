@@ -21,7 +21,7 @@ jobs:
         with:
           shared-key: ci-build
       - name: Run clippy
-        run: cargo clippy --verbose --workspace
+        run: cargo clippy --verbose --no-deps
       - name: Check formatting
         run: cargo fmt --check --verbose
 
