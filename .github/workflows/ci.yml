@@ -11,9 +11,6 @@ env:
   RUSTFLAGS: "-Dwarnings"
 
 jobs:
-  install-rust:
-    runs-on: ubuntu-latest
-
   lint:
     runs-on: ubuntu-latest
     name: Lint
