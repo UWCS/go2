@@ -11,10 +11,16 @@ env:
   RUSTFLAGS: "-Dwarnings"
 
 jobs:
+  install-rust:
+    uses: actions-rs/toolchain@v1
+    with:
+      toolchain: stable
+      override: true
+      components: rustfmt, clippy
+
   lint:
     runs-on: ubuntu-latest
     name: Lint
-    if: ${{ success() }}
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
