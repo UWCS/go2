@@ -12,11 +12,13 @@ env:
 
 jobs:
   install-rust:
-    uses: actions-rs/toolchain@v1
-    with:
-      toolchain: stable
-      override: true
-      components: rustfmt, clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: rustfmt, clippy
 
   lint:
     runs-on: ubuntu-latest
