@@ -13,7 +13,7 @@ RUN rm src/*.rs
 
 # copy source code (and sqlx stuff) (and templates) in
 COPY ./src ./src
-COPY sqlx-data.json .
+COPY ./.sqlx ./.sqlx
 COPY ./migrations ./migrations
 COPY ./templates ./templates
 
