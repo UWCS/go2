@@ -1,0 +1,50 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT source, sink, usages, last_used, created, author FROM redirects_new ORDER BY last_used desc NULLS LAST",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "source",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "sink",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "usages",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "last_used",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "created",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "author",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "d710c2cb781d833905f26401721c5d235b2e05c90d63ff44fda7ffa8de048915"
+}

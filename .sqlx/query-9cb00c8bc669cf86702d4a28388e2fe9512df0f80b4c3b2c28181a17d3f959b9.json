@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO redirects_new (source, sink, author) VALUES ($1, $2, $3)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9cb00c8bc669cf86702d4a28388e2fe9512df0f80b4c3b2c28181a17d3f959b9"
+}

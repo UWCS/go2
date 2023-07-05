@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT sink FROM redirects_new WHERE source = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "sink",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "8452c138a98240ebe10882841d32e4369dceae5415ceca5b33b057532e218fd8"
+}

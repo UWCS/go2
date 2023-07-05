@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE redirects_new SET usages = usages + 1, last_used=NOW() WHERE source=$1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "94a95173b0b2084c618ac9f9d059e4e236bd237f6470227dd7f8d93af004bff7"
+}
