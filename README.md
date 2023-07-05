@@ -9,7 +9,8 @@
 - [`axum`](https://github.com/tokio-rs/axum) is used as an http framework, build on top of [tokio](https://github.com/tokio-rs/tokio) and [hyper](https://github.com/hyperium/hyper)
 - [`sqlx`](https://github.com) is used for database queries
 - [`askama`](https://github.com/djc/askama) is used as a templating engine for the web interface
-    - [`tailwind`](https://github.com/tailwindlabs/tailwindcss) is used for styling
+  - [`tailwind`](https://github.com/tailwindlabs/tailwindcss) is used for styling
+- [`htmx`](https://htmx.org/) is used to provide a little reactivity on the frontend
 
 ## Development
 
@@ -19,7 +20,7 @@
 
 ### Docker
 
-A compose stack is provided to start go2, with both a supporting database container and a mock authentication service. 
+A compose stack is provided to start go2, with both a supporting database container and a mock authentication service.
 
 The stack uses host networking due to weirdness in communication between the user, go2, and the auth service. This means that stack **requires rootful docker running on Linux**, and will not work with rootless docker or on MacOS/Windows. Contributions of a workaround to this would be appreciated.
 

@@ -24,10 +24,7 @@ struct PanelTemplate {
     username: String,
 }
 
-async fn panel(
-    session: ReadableSession,
-    State(state): State<AppState>,
-) -> Result<impl IntoResponse> {
+async fn panel(session: ReadableSession, _: State<AppState>) -> Result<impl IntoResponse> {
     if session.get::<String>("username").is_none() {
         return Err(Redirect::to("/auth/login").into());
     }
@@ -41,6 +38,8 @@ async fn panel(
 struct TableTemplate {
     redirects: Vec<crate::types::Redirect>,
 }
+
+///this returns just the html for the table body. Used for lazy loading and reloading by HTMX.
 async fn table(
     session: ReadableSession,
     State(state): State<AppState>,
@@ -80,7 +79,10 @@ async fn handle_form(
                 "An error occursed while adding your go link to the database.",
             )
         })?;
-    Ok(Redirect::to("/app/panel"))
+
+    //return updated table for htmx to swap in
+    //TODO: only return new row, more
+    Ok(Redirect::to("/app/panel/table"))
 }
 
 pub fn app_routes() -> Router<AppState> {

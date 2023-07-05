@@ -2,8 +2,9 @@
 <div class="text-gray-700">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <form
-      action=""
-      method="POST"
+      hx-post=""
+      hx-target="#link-table"
+      hx-swap="outerHTML"
       class="form flex space-x-2 flex-wrap mt-2 items-center"
     >
       <h2 class="block font-bold py-2 px-4 mt-5 text-lg">Add new go link</h2>
