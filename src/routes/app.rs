@@ -20,17 +20,27 @@ pub async fn home() -> impl IntoResponse {
 
 #[derive(Template)]
 #[template(path = "app.html")]
-struct PanelTemplate {
+struct AppTemplate {
     username: String,
+    message: Option<String>,
 }
 
-async fn panel(session: ReadableSession, _: State<AppState>) -> Result<impl IntoResponse> {
+async fn app(session: ReadableSession, _: State<AppState>) -> Result<impl IntoResponse> {
     if session.get::<String>("username").is_none() {
         return Err(Redirect::to("/auth/login").into());
     }
 
     let username = session.get::<String>("username").unwrap();
-    Ok(PanelTemplate { username })
+    Ok(AppTemplate {
+        username,
+        message: None,
+    })
+}
+
+#[derive(Template)]
+#[template(path = "panel.html")]
+struct PanelTemplate {
+    message: Option<String>,
 }
 
 #[derive(Template)]
@@ -68,25 +78,26 @@ async fn handle_form(
     )
         .into())
     };
+    //return entire panel, including message and cleared form for htmx to swap in
 
-    db::add_new(&f.source, &f.sink, &username, &s.pool)
-        .await
-        .context("Could not add new redirect to database")
-        .map_err(handle_error)
-        .map_err(|_| {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "An error occursed while adding your go link to the database.",
-            )
-        })?;
-
-    //return updated table for htmx to swap in
-    //TODO: only return new row, more
-    Ok(Redirect::to("/app/panel/table"))
+    Ok(PanelTemplate {
+        message: Some(
+            match db::add_new(&f.source, &f.sink, &username, &s.pool).await {
+                Ok(_) => format!("✅ Added go link \"{}\" link to database", f.source),
+                Err(sqlx::Error::Database(e)) if e.code() == Some("23505".into()) => {
+                    format!("❌ Go link with source \"{}\" already exists", f.source)
+                }
+                Err(e) => {
+                    tracing::error!("Failed to handle form submission: {e:?}");
+                    format!("❌ Failed to add go link to database: {e:?}")
+                }
+            },
+        ),
+    })
 }
 
 pub fn app_routes() -> Router<AppState> {
     Router::new()
-        .route("/panel", get(panel).post(handle_form))
+        .route("/panel", get(app).post(handle_form))
         .route("/panel/table", get(table))
 }

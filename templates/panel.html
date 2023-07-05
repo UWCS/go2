@@ -1,0 +1,105 @@
+<div class="text-gray-700" id="panel">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <form
+      hx-post=""
+      hx-target="#panel"
+      hx-swap="outerHTML"
+      class="form flex space-x-2 flex-wrap mt-2 items-center"
+    >
+      <h2 class="block font-bold py-2 px-4 mt-5 text-lg">Add new go link</h2>
+      <div class="form-sink">
+        <label class="inline-flex text-sm text-gray-700" for="source"
+          >Source:</label
+        >
+        <input
+          class="block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          type="text"
+          name="source"
+          id="source"
+          required
+        />
+      </div>
+      <div class="form-source">
+        <label class="inline-flex text-sm text-gray-700" for="sink"
+          >Sink:</label
+        >
+        <input
+          class="block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          type="url"
+          name="sink"
+          id="sink"
+          required
+        />
+      </div>
+      <div class="form-submit">
+        <label class="inline-flex text-sm" for="submit"></label>
+        <button
+          class="block border border-transparent text-white bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded"
+          type="submit"
+          value="Submit"
+        >
+          Submit
+        </button>
+      </div>
+      <p class="block py-2 px-4 mt-5 text-m"
+        >{% match message %} {% when Some with (val) %} {{ val }} {% when None
+        %} {% endmatch %}</p
+      >
+    </form>
+  </div>
+
+  <div class="mx-auto max-w-7xl sm:px-6 lg:px-8 py-8 mt-4 flex flex-col">
+    <div class="-my-2 -mx-4 overflow-auto max-h-[65vh] sm:-mx-6 lg:-mx-8">
+      <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+        <div
+          class="overflow-full shadow ring-1 ring-black ring-opacity-5 md:rounded-lg"
+        >
+          <table class="min-w-full divide-y divide-gray-300" id="redirects">
+            <thead class="bg-gray-100 sticky top-0">
+              <tr>
+                <th
+                  scope="col"
+                  class="py-3.5 pl-4 pr-3 text-left text-sm text-gray-900 sm:pl-6"
+                  >Source</th
+                >
+                <th
+                  scope="col"
+                  class="px-3 py-3.5 text-left text-sm text-gray-900"
+                  >Usages</th
+                >
+                <th
+                  scope="col"
+                  class="px-3 py-3.5 text-left text-sm text-gray-900"
+                  >Created</th
+                >
+                <th
+                  scope="col"
+                  class="px-3 py-3.5 text-left text-sm text-gray-900"
+                  >Author</th
+                >
+                <th
+                  scope="col"
+                  class="px-3 py-3.5 text-left text-sm text-gray-900"
+                  >Last Used</th
+                >
+                <th
+                  scope="col"
+                  class="px-3 py-3.5 text-left text-sm text-gray-900"
+                  >Sink</th
+                >
+              </tr>
+            </thead>
+            <tbody
+              class="divide-y divide-gray-200 bg-white"
+              hx-get="panel/table"
+              hx-trigger="load"
+              hx-swap="outerHTML"
+            >
+              <tr> <td> Links loading...</td> </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
