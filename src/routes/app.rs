@@ -22,7 +22,6 @@ pub async fn home() -> impl IntoResponse {
 #[template(path = "app.html")]
 struct PanelTemplate {
     username: String,
-    redirects: Vec<crate::types::Redirect>,
 }
 
 async fn panel(
@@ -32,16 +31,30 @@ async fn panel(
     if session.get::<String>("username").is_none() {
         return Err(Redirect::to("/auth/login").into());
     }
+
     let username = session.get::<String>("username").unwrap();
+    Ok(PanelTemplate { username })
+}
+
+#[derive(Template)]
+#[template(path = "table.html")]
+struct TableTemplate {
+    redirects: Vec<crate::types::Redirect>,
+}
+async fn table(
+    session: ReadableSession,
+    State(state): State<AppState>,
+) -> Result<impl IntoResponse> {
+    if session.get::<String>("username").is_none() {
+        return Err(Redirect::to("/auth/login").into());
+    }
+
     let redirects = crate::db::get_all(&state.pool)
         .await
         .context("Could not get redirects from database")
         .map_err(handle_error)?;
 
-    Ok(PanelTemplate {
-        username,
-        redirects,
-    })
+    Ok(TableTemplate { redirects })
 }
 
 async fn handle_form(
@@ -71,5 +84,7 @@ async fn handle_form(
 }
 
 pub fn app_routes() -> Router<AppState> {
-    Router::new().route("/panel", get(panel).post(handle_form))
+    Router::new()
+        .route("/panel", get(panel).post(handle_form))
+        .route("/panel/table", get(table))
 }

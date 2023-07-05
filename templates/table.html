@@ -1,0 +1,27 @@
+<tbody class="divide-y divide-gray-200 bg-white">
+  {% for r in redirects %}
+  <tr>
+    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-900 sm:pl-6"
+      >{{ r.source }}
+    </td>
+    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+      >{{ r.usages }}</td
+    >
+    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+      >{% match r.created %} {% when Some with (val) %} {{ val.format("%d/%m/%Y
+      %H:%M") }} {% when None %} {% endmatch %}</td
+    >
+    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+      >{% match r.author %} {% when Some with (val) %} {{ val }} {% when None %}
+      {% endmatch %}</td
+    >
+    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+      >{% match r.last_used %} {% when Some with (val) %} {{
+      val.format("%d/%m/%Y %H:%M") }} {% when None %} {% endmatch %}</td
+    >
+    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
+      >{{ r.sink }}</td
+    >
+  </tr>
+  {% endfor %}
+</tbody>
