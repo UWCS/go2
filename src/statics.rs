@@ -18,7 +18,6 @@ where
 {
     fn into_response(self) -> Response {
         let path = self.0.into();
-        dbg!(Asset::iter().collect::<Vec<_>>());
         match Asset::get(path.as_str()) {
             Some(content) => {
                 let mime = mime_guess::from_path(path).first_or_octet_stream();
@@ -33,6 +32,5 @@ where
 // within our defined assets directory. This is the directory on our Asset
 // struct, where folder = "static/".
 pub async fn static_handler(uri: Uri) -> impl IntoResponse {
-    dbg!("in static handler");
     StaticFile(uri.path().trim_start_matches("/static/").to_string())
 }
