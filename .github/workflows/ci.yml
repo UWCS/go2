@@ -25,6 +25,11 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: ci-build
+
+      # need to install tailwind for the build to run
+      - name: Install tailwind cli
+        run: wget -O tailwindcss https://github.com/tailwindlabs/tailwindcss/releases/download/$(wget -q -O - https://api.github.com/repos/tailwindlabs/tailwindcss/releases/latest | jq -r ".tag_name")/tailwindcss-linux-x64 && chmod u+x tailwindcss
+
       - name: Run clippy
         run: cargo clippy --verbose --no-deps
       - name: Check formatting
