@@ -40,4 +40,4 @@ Migrations in `/migrations` are embedded in the binary and run on startup. New m
 
 ### Tailwind
 
-Tailwind is used for styling the HTML pages that provide the web interface. If committing changes to any HTML or CSS files, first rebuild the `output.css` [using tailwind cli](https://tailwindcss.com/blog/standalone-cli).
+Tailwind is used for styling the HTML pages that provide the web interface. Cargo will rebuild `static/output.css` as part of it's build step, facilitated by the inclusion of a build script. The `tailwindcss` CLI is therefore required to run build `go2`, [see instructions on how to download it here](https://tailwindcss.com/blog/standalone-cli), and place the executable either on path somewhere or in the project root.
