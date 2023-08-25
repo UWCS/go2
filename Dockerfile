@@ -26,6 +26,7 @@ COPY ./migrations ./migrations
 COPY ./templates ./templates
 COPY ./static ./static
 COPY tailwind.config.js tailwind.config.js
+COPY build.rs build.rs
 
 # build our code
 RUN rm ./target/release/deps/go2*
