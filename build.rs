@@ -1,11 +1,11 @@
-use std::env;
 use std::path::{Path, PathBuf};
+use std::{env, process::Output};
 use which::which;
 
 // Example custom build script.
 fn main() {
     // Tell Cargo that if the given file changes, to rerun this build script.
-    println!("cargo:rerun-if-changed=templates/*");
+    println!("cargo:rerun-if-changed=templates/");
     println!("cargo:rerun-if-changed=static/styles.css");
     println!("cargo:rerun-if-changed=tailwind.config.js");
     if let Some(exe) = find_tailwind() {
@@ -30,9 +30,18 @@ fn run_tailwind(exe: &Path) {
         .arg("-o")
         .arg("static/output.css")
         .arg("--minify")
-        .output()
-        .map(|_| ());
-    if let Err(e) = result {
-        panic!("Failed to run tailwindcss: {}", e)
+        .output();
+
+    match result {
+        Ok(Output {
+            status,
+            stdout: _,
+            stderr,
+        }) if !status.success() => panic!(
+            "tailwindcss exited with error: {}",
+            String::from_utf8_lossy(&stderr)
+        ),
+        Err(e) => panic!("Failed to run tailwindcss: {}", e),
+        _ => (),
     }
 }

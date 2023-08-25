@@ -25,6 +25,7 @@ COPY ./.sqlx ./.sqlx
 COPY ./migrations ./migrations
 COPY ./templates ./templates
 COPY ./static ./static
+COPY tailwind.config.js tailwind.config.js
 
 # build our code
 RUN rm ./target/release/deps/go2*

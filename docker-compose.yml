@@ -1,24 +1,6 @@
 version: "3"
 
 services:
-  go2:
-    container_name: go2
-    build: .
-    environment:
-      DATABASE_URL: postgres://go2:bananas@localhost:5432/go2
-      PORT: 8080
-      API_SECRET: super_secret
-      AUTH_CLIENT_ID: foo
-      AUTH_CLIENT_SECRET: bar
-      AUTH_OIDC_URL: http://localhost:8081/
-      APP_URL: http://localhost:8080
-    restart: on-failure
-    network_mode: host
-    depends_on:
-      - db
-      - auth 
-
-
   db:
     image: postgres:14.7
     ports:
@@ -29,7 +11,7 @@ services:
       POSTGRES_PASSWORD: bananas
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    
+
   auth:
     image: qlik/simple-oidc-provider
     ports:
