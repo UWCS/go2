@@ -1,11 +1,6 @@
-use axum::{
-    http::StatusCode,
-    routing::{get, get_service},
-    Router,
-};
+use axum::{http::StatusCode, routing::get, Router};
 use axum_sessions::{async_session::MemoryStore, SameSite, SessionLayer};
 use rand::Rng;
-use tower_http::services::ServeDir;
 
 mod config;
 mod db;
