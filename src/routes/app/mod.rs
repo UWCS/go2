@@ -1,7 +1,6 @@
 use super::handle_error;
 use crate::{db, types::GoPair, AppState};
 use anyhow::Context;
-use askama::Template;
 use axum::{
     extract::State,
     http::StatusCode,
@@ -10,19 +9,12 @@ use axum::{
     Form, Router,
 };
 use axum_sessions::extractors::ReadableSession;
+
+mod templates;
+use templates::*;
+
 pub async fn home() -> impl IntoResponse {
-    #[derive(Template)]
-    #[template(path = "home.html")]
-    struct IndexTemplate;
-
     IndexTemplate
-}
-
-#[derive(Template)]
-#[template(path = "app.html")]
-struct AppTemplate {
-    username: String,
-    message: Option<String>,
 }
 
 async fn app(session: ReadableSession, _: State<AppState>) -> Result<impl IntoResponse> {
@@ -35,18 +27,6 @@ async fn app(session: ReadableSession, _: State<AppState>) -> Result<impl IntoRe
         username,
         message: None,
     })
-}
-
-#[derive(Template)]
-#[template(path = "panel.html")]
-struct PanelTemplate {
-    message: Option<String>,
-}
-
-#[derive(Template)]
-#[template(path = "table.html")]
-struct TableTemplate {
-    redirects: Vec<crate::types::Redirect>,
 }
 
 ///this returns just the html for the table body. Used for lazy loading and reloading by HTMX.
