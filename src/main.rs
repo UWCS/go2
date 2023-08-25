@@ -10,6 +10,7 @@ use tower_http::services::ServeDir;
 mod config;
 mod db;
 mod routes;
+mod statics;
 mod types;
 
 /// Struct containing application state that may be needed by any handler
@@ -59,7 +60,7 @@ async fn main() -> anyhow::Result<()> {
         .nest("/api", routes::api_routes(api_secret))
         .nest("/auth", routes::auth_routes())
         .nest("/app", routes::app::app_routes())
-        .nest_service("/static", get_service(ServeDir::new("./static/")))
+        .route("/static/*file", get(statics::static_handler))
         .with_state(state)
         .fallback(|| async { (StatusCode::NOT_FOUND, "Not Found") })
         .layer(session_layer)

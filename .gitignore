@@ -1,2 +1,6 @@
 /target
 .env
+# tailwind cli binary
+tailwindcss
+# dont check in the build
+static/output.css
