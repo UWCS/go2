@@ -51,12 +51,12 @@ async fn handle_form(
     session: ReadableSession,
     Form(f): Form<GoPair>,
 ) -> Result<impl IntoResponse> {
-    let Some(username) = session.get::<String>("username") else { 
+    let Some(username) = session.get::<String>("username") else {
         return Err((
-        StatusCode::UNAUTHORIZED,
-        "You must be logged in to do that.",
-    )
-        .into())
+            StatusCode::UNAUTHORIZED,
+            "You must be logged in to do that.",
+        )
+            .into());
     };
     //return entire panel, including message and cleared form for htmx to swap in
 
